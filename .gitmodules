@@ -1,0 +1,3 @@
+[submodule "ext/sigma.js"]
+	path = ext/sigma.js
+	url = git://github.com/jacomyal/sigma.js.git
