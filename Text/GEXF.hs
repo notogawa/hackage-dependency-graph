@@ -6,10 +6,10 @@ module Text.GEXF
 
 import Data.Graph.Inductive
 import Text.XML
-import Data.Text hiding ( map, zipWith )
+import Data.Text hiding ( map, zipWith, group, length )
 import Data.Map hiding ( map )
 
-toDocument :: Graph graph =>
+toDocument :: (Graph graph, Ord edge) =>
               (node -> Text)
            -> graph node edge
            -> Document

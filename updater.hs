@@ -10,45 +10,65 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import Text.GEXF
 import Text.XML
-import Data.List ( intercalate )
+import Data.List ( intercalate, nub )
 import Cabal
 import Distribution.Package
 import Distribution.Version
 
-import Debug.Trace
-
-type DepGraph = G.Gr PackageIdentifier ()
+type PackageVersionGraph = G.Gr PackageIdentifier ()
+type PackageGraph = G.Gr PackageName ()
 
 showPackage :: PackageIdentifier -> String
-showPackage (PackageIdentifier (PackageName name) version) =
-    name ++ '-' : intercalate "." (map show $ versionBranch version)
+showPackage (PackageIdentifier name version) =
+    showPackageName name ++ '-' : intercalate "." (map show $ versionBranch version)
+
+showPackageName :: PackageName -> String
+showPackageName (PackageName name) = name
 
 hackageDir :: FilePath
 hackageDir = "hackage"
 
 main :: IO ()
-main = do
+main = packageGraph
+
+a # b = pkgName a == pkgName b
+
+packageGraph = do
   packages <- getPackageDirs >>= getPackages >>= mapM getPackageInfo
-  trace "Done load *.cabal" $ return ()
+  let !nodes = zip [0..] $ nub $ map (pkgName . fst) packages
+      !nmap = M.fromList $ map (uncurry (flip (,))) nodes
+      !edges = concat $ do
+                 (package, dependencies) <- packages
+                 let Just src = M.lookup (pkgName package) nmap
+                 return [ (src, dst, ())
+                        | dependency <- dependencies
+                        , (p, _) <- searchPackage dependency packages
+                        , let Just dst = M.lookup (pkgName p) nmap
+                        ]
+      !graph = G.mkGraph nodes edges :: PackageGraph
+  writeFile def "hackage.gexf" $ toDocument (T.pack . showPackageName) graph
+
+packageVersionGraph = do
+  packages <- getPackageDirs >>= getPackages >>= mapM getPackageInfo
   let !nodes = zip [0..] $ map fst packages
       !nmap = M.fromList $ map (uncurry (flip (,))) nodes
       !edges = concat $ do
                  (package, dependencies) <- packages
-                 let Just src = trace (showPackage package) $ M.lookup package nmap
+                 let Just src = M.lookup package nmap
                  return [ (src, dst, ())
                         | dependency <- dependencies
                         , (p, _) <- searchPackage dependency packages
                         , let Just dst = M.lookup p nmap
                         ]
-      !graph = G.mkGraph nodes edges :: DepGraph
-  writeFile def "hackage.gexf" $ toDocument (T.pack . showPackage) graph
+      !graph = G.mkGraph nodes edges :: PackageVersionGraph
+  writeFile def "hackage.full.gexf" $ toDocument (T.pack . showPackage) graph
 
 getDirectoryContents' path =
     filter (("." /=) . take 1) <$> getDirectoryContents path
 
 getPackageDirs =
     getDirectoryContents' hackageDir >>=
-    filterM (doesDirectoryExist . (hackageDir ++) . ("/" ++))
+    filterM (doesDirectoryExist . (hackageDir ++) . ("/" ++)) . filter ("base" /=)
 
 getPackages packageDirs =
     concat <$> (forM packageDirs $ \packageDir -> do
