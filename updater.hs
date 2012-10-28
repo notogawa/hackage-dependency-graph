@@ -10,7 +10,7 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import Text.GEXF
 import Text.XML
-import Data.List ( intercalate, nub )
+import Data.List ( intercalate, nub, sort )
 import Cabal
 import Distribution.Package
 import Distribution.Version
@@ -35,9 +35,9 @@ a # b = pkgName a == pkgName b
 
 packageGraph = do
   packages <- getPackageDirs >>= getPackages >>= mapM getPackageInfo
-  let !nodes = zip [0..] $ nub $ map (pkgName . fst) packages
-      !nmap = M.fromList $ map (uncurry (flip (,))) nodes
-      !edges = concat $ do
+  let nodes = zip [0..] $ nub $ map (pkgName . fst) packages
+      nmap = M.fromList $ map (uncurry (flip (,))) nodes
+      edges = nub . sort . concat $ do
                  (package, dependencies) <- packages
                  let Just src = M.lookup (pkgName package) nmap
                  return [ (src, dst, ())
@@ -45,14 +45,14 @@ packageGraph = do
                         , (p, _) <- searchPackage dependency packages
                         , let Just dst = M.lookup (pkgName p) nmap
                         ]
-      !graph = G.mkGraph nodes edges :: PackageGraph
+      graph = G.mkGraph nodes edges :: PackageGraph
   writeFile def "hackage.gexf" $ toDocument (T.pack . showPackageName) graph
 
 packageVersionGraph = do
   packages <- getPackageDirs >>= getPackages >>= mapM getPackageInfo
-  let !nodes = zip [0..] $ map fst packages
-      !nmap = M.fromList $ map (uncurry (flip (,))) nodes
-      !edges = concat $ do
+  let nodes = zip [0..] $ map fst packages
+      nmap = M.fromList $ map (uncurry (flip (,))) nodes
+      edges = concat $ do
                  (package, dependencies) <- packages
                  let Just src = M.lookup package nmap
                  return [ (src, dst, ())
@@ -60,7 +60,7 @@ packageVersionGraph = do
                         , (p, _) <- searchPackage dependency packages
                         , let Just dst = M.lookup p nmap
                         ]
-      !graph = G.mkGraph nodes edges :: PackageVersionGraph
+      graph = G.mkGraph nodes edges :: PackageVersionGraph
   writeFile def "hackage.full.gexf" $ toDocument (T.pack . showPackage) graph
 
 getDirectoryContents' path =

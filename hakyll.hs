@@ -15,3 +15,5 @@ main = hakyllWith config $ do
 
 config :: HakyllConfiguration
 config = defaultHakyllConfiguration
+         { deployCommand = "scp -r _site www.notogawa.com:"
+         }
