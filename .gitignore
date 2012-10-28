@@ -1,1 +1,10 @@
 *~
+*.o
+*.hi
+/_cache
+/_site
+/cabal-dev
+/hackage
+/00-index.tar.gz
+/updater
+*.gexf
