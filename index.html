@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>Hackage Dependency Graph</title>
-    <script src="/js/sigma.min.js"></script>
+    <script src="/hdg/js/sigma.min.js"></script>
   </head>
   <body>
     <h1>Hackage Dependency Graph</h1>
@@ -16,8 +16,8 @@
         <div class="sigma-expand" id="sigma-dep-graph"></div>
       </div>
 
-      <script src="/js/sigma.parseGexf.js"></script>
-      <script src="/js/sigma.forceatlas2.js"></script>
+      <script src="/hdg/js/sigma.parseGexf.js"></script>
+      <script src="/hdg/js/sigma.forceatlas2.js"></script>
       <script type="text/javascript">
 function init() {
   var sigInst = sigma.init(document.getElementById('sigma-dep-graph')).drawingProperties({
@@ -35,7 +35,7 @@ function init() {
     maxRatio: 32
   });
 
-  sigInst.parseGexf('/hackage.gexf');
+  sigInst.parseGexf('/hdg/hackage.gexf');
 
   sigInst.bind('overnodes', function(event){
     var nodes = event.content;
