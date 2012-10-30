@@ -24,6 +24,9 @@ toDocument toLabel graph =
     , documentRoot =
         element "gexf"
         [ "xmlns" .= "http://www.gexf.net/1.2draft"
+        , "xmlns:viz" .= "http://www.gexf.net/1.2draft/viz"
+        , "xmlns:xsi" .= "http://www.w3.org/2001/XMLSchema-instance"
+        , "xsi:schemaLocation" .= "http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd"
         , "version" .= "1.2"
         ]
         [ NodeElement $ element "graph"
@@ -31,7 +34,7 @@ toDocument toLabel graph =
           , "defaultedgetype" .= "directed"
           ]
           [ NodeElement $ element "nodes" [] $
-            map (nodeToNode toLabel) $ labNodes graph
+            map (nodeToNode graph toLabel) $ labNodes graph
           , NodeElement $ element "edges" [] $
             zipWith edgeToNode [0..] $ labEdges graph
           ]
@@ -44,12 +47,16 @@ a .= b = ( Name a Nothing Nothing, b )
 element name attrs elems =
     Element (Name name Nothing Nothing) (fromList attrs) elems
 
-nodeToNode toLabel (node, a) =
+nodeToNode graph toLabel (node, a) =
     NodeElement $ element "node"
     [ "id" .= pack (show node)
     , "label" .= toLabel a
     ]
-    []
+    [ NodeElement $ element "viz:size"
+      [ "value" .= pack (show $ 1 + log (1 + (toEnum $ length $ pre graph node)))
+      ]
+      []
+    ]
 
 edgeToNode n (src, dst, a) =
     NodeElement $ element "edge"

@@ -32,8 +32,6 @@ hackageDir = "hackage"
 main :: IO ()
 main = packageGraph
 
-a # b = pkgName a == pkgName b
-
 packageGraph = do
   packages <- sort <$> getPackageDirs >>= getPackages >>= mapM getPackageInfo
   let nodes = zip [0..] $ nub $ map (pkgName . fst) packages
