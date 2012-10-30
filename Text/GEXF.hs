@@ -36,7 +36,7 @@ toDocument toLabel graph =
           [ NodeElement $ element "nodes" [] $
             map (nodeToNode graph toLabel) $ labNodes graph
           , NodeElement $ element "edges" [] $
-            zipWith edgeToNode [0..] $ labEdges graph
+            zipWith (edgeToNode graph) [0..] $ labEdges graph
           ]
         ]
     , documentEpilogue = []
@@ -53,12 +53,12 @@ nodeToNode graph toLabel (node, a) =
     , "label" .= toLabel a
     ]
     [ NodeElement $ element "viz:size"
-      [ "value" .= pack (show $ 1 + log (1 + (toEnum $ length $ pre graph node)))
+      [ "value" .= pack (show $ 1 + log (1 + (toEnum $ indeg graph node)))
       ]
       []
     ]
 
-edgeToNode n (src, dst, a) =
+edgeToNode graph n (src, dst, a) =
     NodeElement $ element "edge"
     [ "id" .= pack (show n)
     , "source" .= pack (show src)

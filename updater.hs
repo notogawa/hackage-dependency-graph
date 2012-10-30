@@ -75,7 +75,7 @@ getDirectoryContents' path =
 
 getPackageDirs =
     getDirectoryContents' hackageDir >>=
-    filterM (doesDirectoryExist . (hackageDir ++) . ("/" ++)) . filter ("base" /=)
+    filterM (doesDirectoryExist . (hackageDir ++) . ("/" ++))
 
 getPackages packageDirs =
     concat <$> (forM packageDirs $ \packageDir -> do
