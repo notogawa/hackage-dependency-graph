@@ -32,29 +32,6 @@ function init() {
 
   sigInst.parseGexf('/hdg/hackage.gexf');
 
-  sigInst.bind('overnodes', function(event){
-    var nodes = event.content;
-    var neighbors = {};
-    sigInst.iterEdges(function(e){
-      if(nodes.indexOf(e.source)>=0 || nodes.indexOf(e.target)>=0){
-        neighbors[e.source] = 1;
-        neighbors[e.target] = 1;
-      }
-    }).iterNodes(function(n){
-      if(!neighbors[n.id]){
-        n.hidden = 1;
-      }else{
-        n.hidden = 0;
-      }
-    }).draw(2,2,2);
-  }).bind('outnodes', function(){
-    sigInst.iterEdges(function(e){
-      e.hidden = 0;
-    }).iterNodes(function(n){
-      n.hidden = 0;
-    }).draw(2,2,2);
-  });
-
   sigInst.startForceAtlas2();
 
   var isRunning = true;
@@ -63,10 +40,33 @@ function init() {
       isRunning = false;
       sigInst.stopForceAtlas2();
       document.getElementById('stop-layout').childNodes[0].nodeValue = 'Start Layout';
+      sigInst.bind('overnodes', function(event){
+        var nodes = event.content;
+        var neighbors = {};
+        sigInst.iterEdges(function(e){
+          if(nodes.indexOf(e.source)>=0 || nodes.indexOf(e.target)>=0){
+            neighbors[e.source] = 1;
+            neighbors[e.target] = 1;
+          }
+        }).iterNodes(function(n){
+          if(!neighbors[n.id]){
+            n.hidden = 1;
+          }else{
+            n.hidden = 0;
+          }
+        }).draw(2,2,2);
+      }).bind('outnodes', function(){
+        sigInst.iterEdges(function(e){
+          e.hidden = 0;
+        }).iterNodes(function(n){
+          n.hidden = 0;
+        }).draw(2,2,2);
+      });
     }else{
       isRunning = true;
       sigInst.startForceAtlas2();
       document.getElementById('stop-layout').childNodes[0].nodeValue = 'Stop Layout';
+      sigInst.unbind('overnodes').unbind('outnodes');
     }
   },true);
   document.getElementById('rescale-graph').addEventListener('click',function(){
