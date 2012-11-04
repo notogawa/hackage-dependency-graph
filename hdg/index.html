@@ -48,18 +48,21 @@ function init() {
             neighbors[e.source] = 1;
             neighbors[e.target] = 1;
           }
-        }).iterNodes(function(n){
-          if(!neighbors[n.id]){
-            n.hidden = 1;
-          }else{
-            n.hidden = 0;
+        }).iterEdges(function(e){
+          if(nodes.indexOf(e.source)>=0) {
+            e.color = '#F66';
+          } else if(nodes.indexOf(e.target)>=0) {
+            e.color = '#66F';
+          } else if(neighbors[e.source]>0 && neighbors[e.target]>0){
+            e.color = '#363';
+          } else {
+            e.hidden = 1;
           }
         }).draw(2,2,2);
       }).bind('outnodes', function(){
         sigInst.iterEdges(function(e){
           e.hidden = 0;
-        }).iterNodes(function(n){
-          n.hidden = 0;
+          e.color = e.attr['true_color'];
         }).draw(2,2,2);
       });
     }else{
