@@ -3,13 +3,13 @@ import Hakyll
 
 main :: IO ()
 main = hakyllWith config $ do
-         match "index.html" $ do
+         match "hdg/index.html" $ do
            route idRoute
            compile copyFileCompiler
-         match "js/**" $ do
+         match "hdg/js/**" $ do
            route idRoute
            compile copyFileCompiler
-         match "*.gexf" $ do
+         match "hdg/*.gexf" $ do
            route idRoute
            compile copyFileCompiler
 

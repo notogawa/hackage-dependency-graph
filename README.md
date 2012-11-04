@@ -1,5 +1,3 @@
-
-
 Build
 =====
 
@@ -10,14 +8,13 @@ Build
     $ git submodule update
     $ ln -s /opt/closure-compiler-bin-0/lib/closure-compiler-bin.jar ext/sigma.js/build/compiler.jar
     $ make -C ext/sigma.js
-    $ cd js
-    $ ln -s ../ext/sigma.js/build/*.js .
-    $ ln -s ../ext/sigma.js/plugins/*.js .
-    $ cd ..
+    $ cd hdg/js
+    $ ln -s ../../ext/sigma.js/build/*.js .
+    $ ln -s ../../ext/sigma.js/plugins/*.js .
+    $ cd ../../
     $ cabal update
-    $ cabal install hakyll xml-conduit
+    $ cabal install hakyll xml-conduit hackage-db
     $ ghc updater
     $ ghc hakyll
-    $ ./update.sh
     $ ./updater
     $ ./hakyll rebuild
